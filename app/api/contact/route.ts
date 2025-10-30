@@ -17,6 +17,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email service not configured." }, { status: 500 })
     }
 
+    const fromAddress = process.env.SUPPORT_FROM_EMAIL || "Typeracing Support <support@send.shivee.biz>"
+    const supportInbox = process.env.SUPPORT_INBOX || "de.erdene@yahoo.com"
+
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -24,8 +27,8 @@ export async function POST(request: Request) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        from: "Typeracing Support <onboarding@resend.dev>",
-        to: ["de.erdene@yahoo.com"],
+        from: fromAddress,
+        to: [supportInbox],
         reply_to: email,
         subject: "New Typeracing support message",
         text: `From: ${email}\n\n${message}`,
