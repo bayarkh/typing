@@ -6,9 +6,9 @@ import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Typeracing',
+  description: 'Practice typing and race with friends',
+  generator: '',
 }
 
 export default function RootLayout({

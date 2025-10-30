@@ -1,5 +1,7 @@
 "use client"
 
+import { FormEvent, useState } from "react"
+
 import { PracticeCard } from "@/components/practice-card"
 import { MultiplayerCard } from "@/components/multiplayer-card"
 import { HistoryCard } from "@/components/history-card"
@@ -18,6 +20,48 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 
 export default function HomePage() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
+
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const email = formData.get("email")?.toString().trim()
+    const message = formData.get("message")?.toString().trim()
+
+    if (!email || !message) {
+      setFeedback({ type: "error", message: "Please provide both email and message." })
+      return
+    }
+
+    setIsSubmitting(true)
+    setFeedback(null)
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, message }),
+      })
+
+      if (!response.ok) {
+        const errorPayload = await response.json().catch(() => null)
+        throw new Error(errorPayload?.error ?? "Failed to send message. Please try again later.")
+      }
+
+      setFeedback({ type: "success", message: "Thanks! We'll get back to you soon." })
+      form.reset()
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background px-4 py-8 transition-colors">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -50,22 +94,34 @@ export default function HomePage() {
               <CardDescription>Have a question or feedback? Send us a message.</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-5" aria-label="Contact form">
+              <form className="space-y-5" aria-label="Contact form" onSubmit={handleContactSubmit} noValidate>
                 <div className="space-y-2">
                   <Label htmlFor="contact-email">Email</Label>
-                  <Input id="contact-email" type="email" placeholder="you@example.com" required />
+                  <Input id="contact-email" name="email" type="email" placeholder="you@example.com" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contact-message">Message</Label>
                   <Textarea
                     id="contact-message"
+                    name="message"
                     placeholder="Let us know how we can help..."
                     required
                     rows={4}
                   />
                 </div>
+                {feedback && (
+                  <p
+                    className={`text-sm ${feedback.type === "success" ? "text-emerald-500" : "text-destructive"}`}
+                    role={feedback.type === "error" ? "alert" : "status"}
+                    aria-live={feedback.type === "error" ? "assertive" : "polite"}
+                  >
+                    {feedback.message}
+                  </p>
+                )}
                 <div className="flex justify-end">
-                  <Button type="submit">Send</Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Sending..." : "Send"}
+                  </Button>
                 </div>
               </form>
             </CardContent>
