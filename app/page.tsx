@@ -5,6 +5,17 @@ import { MultiplayerCard } from "@/components/multiplayer-card"
 import { HistoryCard } from "@/components/history-card"
 import { StatsCard } from "@/components/stats-card"
 import { ThemeToggle } from "@/components/theme-toggle"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 export default function HomePage() {
   return (
@@ -31,6 +42,35 @@ export default function HomePage() {
           <StatsCard />
           <HistoryCard />
         </div>
+
+        <section aria-labelledby="contact-heading">
+          <Card className="shadow-md transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <CardTitle id="contact-heading">Contact</CardTitle>
+              <CardDescription>Have a question or feedback? Send us a message.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-5" aria-label="Contact form">
+                <div className="space-y-2">
+                  <Label htmlFor="contact-email">Email</Label>
+                  <Input id="contact-email" type="email" placeholder="you@example.com" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact-message">Message</Label>
+                  <Textarea
+                    id="contact-message"
+                    placeholder="Let us know how we can help..."
+                    required
+                    rows={4}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button type="submit">Send</Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </main>
   )
