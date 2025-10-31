@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email service not configured." }, { status: 500 })
     }
 
-    const fromAddress = process.env.SUPPORT_FROM_EMAIL || "Typeracing Support <support@send.shivee.biz>"
+    const fromAddress = process.env.SUPPORT_FROM_EMAIL || "Typeracing Support <support@shivee.biz>"
     const supportInbox = process.env.SUPPORT_INBOX || "de.erdene@yahoo.com"
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -36,9 +36,16 @@ export async function POST(request: Request) {
     })
 
     if (!emailResponse.ok) {
-      const errorBody = await emailResponse.text()
+      const errorBody = await emailResponse.json().catch(async () => {
+        const text = await emailResponse.text()
+        return { message: text || "Unknown error" }
+      })
       console.error("Failed to send contact email:", emailResponse.status, errorBody)
-      return NextResponse.json({ error: "Failed to send message." }, { status: 502 })
+      const errorMessage =
+        typeof errorBody === "object" && errorBody !== null && "message" in errorBody
+          ? String((errorBody as { message: unknown }).message)
+          : "Failed to send message."
+      return NextResponse.json({ error: errorMessage }, { status: emailResponse.status })
     }
 
     return NextResponse.json({ ok: true })
