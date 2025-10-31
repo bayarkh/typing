@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: 'Typeracing',
   description: 'Practice typing and race with friends',
   generator: '',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
