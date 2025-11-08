@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react"
 import type { LanguageCode, PracticeHUD } from "@/types"
 import { HISTORY_STORAGE_KEY, STATS_STORAGE_KEY } from "@/lib/storage-keys"
+import { emitHistoryUpdatedEvent } from "@/lib/history-events"
 
 type CharState = "pending" | "correct" | "wrong"
 
@@ -205,6 +206,7 @@ function saveToHistory(row: {
     stats[today].bestWpm = Math.max(stats[today].bestWpm, row.wpm)
     
     localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(stats))
+    emitHistoryUpdatedEvent()
   } catch (error) {
     console.error("Failed to save history:", error)
   }

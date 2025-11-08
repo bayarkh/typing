@@ -67,7 +67,7 @@ async function withRoom(
 
   if (!result) {
     await deleteRoom(code)
-    return { response: NextResponse.json(null, { status: 204 }), room: null }
+    return { response: new NextResponse(null, { status: 204 }), room: null }
   }
 
   const normalised = normaliseRoomState(result)

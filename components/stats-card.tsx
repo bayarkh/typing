@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { BarChart3, Trophy } from "lucide-react"
 import { STATS_STORAGE_KEY } from "@/lib/storage-keys"
+import { HISTORY_UPDATED_EVENT } from "@/lib/history-events"
 
 interface DailyStats {
   sessions: number
@@ -52,13 +53,37 @@ export function StatsCard() {
   }, [stats])
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STATS_STORAGE_KEY)
-      if (stored) {
+    if (typeof window === "undefined") return
+
+    const loadStats = () => {
+      try {
+        const stored = localStorage.getItem(STATS_STORAGE_KEY)
+        if (!stored) {
+          setStats({})
+          return
+        }
         setStats(JSON.parse(stored))
+      } catch (error) {
+        console.error("Failed to load stats:", error)
       }
-    } catch (error) {
-      console.error("Failed to load stats:", error)
+    }
+
+    loadStats()
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STATS_STORAGE_KEY) {
+        loadStats()
+      }
+    }
+
+    const handleStatsUpdated = () => loadStats()
+
+    window.addEventListener("storage", handleStorage)
+    window.addEventListener(HISTORY_UPDATED_EVENT, handleStatsUpdated as EventListener)
+
+    return () => {
+      window.removeEventListener("storage", handleStorage)
+      window.removeEventListener(HISTORY_UPDATED_EVENT, handleStatsUpdated as EventListener)
     }
   }, [])
 

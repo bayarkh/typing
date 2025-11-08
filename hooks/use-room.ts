@@ -9,6 +9,7 @@ import {
   STATS_STORAGE_KEY,
 } from "@/lib/storage-keys"
 import { DEFAULT_LANGUAGE, getRandomPrompt } from "@/lib/prompts"
+import { emitHistoryUpdatedEvent } from "@/lib/history-events"
 
 type CharState = "pending" | "correct" | "wrong"
 
@@ -486,6 +487,7 @@ function saveRoomToHistory(row: {
     stats[today].bestWpm = Math.max(stats[today].bestWpm, row.wpm)
 
     localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(stats))
+    emitHistoryUpdatedEvent()
   } catch (error) {
     console.error("Failed to save room history", error)
   }
