@@ -174,6 +174,10 @@ function handleLeave(room: StoredRoom, payload: LeavePayload): StoredRoom | null
 
   const remaining = room.players.filter((player) => player.id !== playerId)
 
+  if (room.hostId === playerId) {
+    return null
+  }
+
   if (remaining.length === 0) {
     return null
   }

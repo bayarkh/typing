@@ -43,6 +43,7 @@ export default function RoomPage() {
   const inputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
+  const hasJoinedRoomRef = useRef(false)
 
   useEffect(() => {
     if (room.status === "countdown" && room.startsAt) {
@@ -125,6 +126,21 @@ export default function RoomPage() {
     const timeout = setTimeout(() => setCopyMessage(null), 2000)
     return () => clearTimeout(timeout)
   }, [copyMessage])
+
+  useEffect(() => {
+    if (!isLoading && !notFound) {
+      hasJoinedRoomRef.current = true
+    }
+  }, [isLoading, notFound])
+
+  useEffect(() => {
+    if (!notFound || !hasJoinedRoomRef.current) return
+    toast({
+      title: "Room closed",
+      description: "The host left the room. Returning home.",
+    })
+    router.push("/")
+  }, [notFound, router, toast])
 
   const handleRematch = useCallback(() => {
     if (!isHost) return
