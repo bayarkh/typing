@@ -98,7 +98,7 @@ export async function GET(
   return NextResponse.json({ room: normaliseRoomState(normalised) })
 }
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ code: string }> }) {
+async function handleRoomMutation(request: Request, { params }: { params: Promise<{ code: string }> }) {
   const { code: rawCode } = await params
   const code = rawCode.toUpperCase()
 
@@ -126,6 +126,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ co
     console.error(error)
     return NextResponse.json({ error: "Unexpected error" }, { status: 500 })
   }
+}
+
+export async function PATCH(request: Request, ctx: { params: Promise<{ code: string }> }) {
+  return handleRoomMutation(request, ctx)
+}
+
+export async function POST(request: Request, ctx: { params: Promise<{ code: string }> }) {
+  return handleRoomMutation(request, ctx)
 }
 
 function ensurePlayerId(payload: { playerId?: string }) {
