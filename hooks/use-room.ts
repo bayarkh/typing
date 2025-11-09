@@ -190,11 +190,30 @@ export function useRoom(code: string) {
     if (!playerId) return
 
     return () => {
-      fetch(`/api/rooms/${code}`, {
+      const payload = JSON.stringify({ action: "leave", playerId })
+      const url = `/api/rooms/${code}`
+
+      if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+        const blob = new Blob([payload], { type: "application/json" })
+        const sent = navigator.sendBeacon(url, blob)
+        if (!sent) {
+          fetch(url, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: payload,
+            cache: "no-store",
+            keepalive: true,
+          }).catch((error) => console.error("Failed to leave room", error))
+        }
+        return
+      }
+
+      fetch(url, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "leave", playerId }),
+        body: payload,
         cache: "no-store",
+        keepalive: true,
       }).catch((error) => console.error("Failed to leave room", error))
     }
   }, [code, playerId])
